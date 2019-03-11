@@ -1,11 +1,13 @@
 package goaviatrix
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/url"
+	"unsafe"
 )
 
 // Gateway simple struct to hold gateway details
@@ -122,6 +124,11 @@ func (c *Client) CreateGateway(gateway *Gateway) error {
 	}
 	var data APIResp
 	if err = json.NewDecoder(resp.Body).Decode(&data); err != nil {
+		buf := new(bytes.Buffer)
+		buf.ReadFrom(resp.Body)
+		b := buf.Bytes()
+		s := *(*string)(unsafe.Pointer(&b))
+		log.Printf("s is %v ", s)
 		return errors.New("Json Decode connect_container failed: " + err.Error())
 	}
 	if !data.Return {
